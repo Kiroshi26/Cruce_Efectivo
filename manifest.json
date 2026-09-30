@@ -1,0 +1,6 @@
+{
+  "id": "cruce_efectivo",
+  "nombre": "Cruce de Efectivo",
+  "version": "1.0.0",
+  "entry_point": "app.py"
+}
