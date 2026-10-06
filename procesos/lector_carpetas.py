@@ -1,4 +1,3 @@
-from datetime import datetime
 from pathlib import Path
 
 
@@ -9,54 +8,78 @@ RUTA_BASE = (
 )
 
 
-def obtener_ruta_periodo() -> Path:
-    """
-    Obtiene la última carpeta de mes disponible
-    dentro del año actual.
-    """
+def obtener_anios_disponibles():
 
-    anio_actual = str(datetime.now().year)
+    ruta_base = Path(RUTA_BASE)
 
-    ruta_anio = Path(RUTA_BASE) / anio_actual
+    anios = []
 
-    if not ruta_anio.exists():
-        raise FileNotFoundError(
-            f"No existe la carpeta del año:\n{ruta_anio}"
-        )
+    for carpeta in ruta_base.iterdir():
 
-    carpetas_mes = []
+        if (
+            carpeta.is_dir()
+            and carpeta.name.isdigit()
+        ):
+            anios.append(carpeta.name)
+
+    anios.sort()
+
+    return anios
+
+
+def obtener_meses_disponibles(anio):
+
+    ruta_anio = Path(RUTA_BASE) / anio
+
+    meses = []
 
     for carpeta in ruta_anio.iterdir():
 
-        if not carpeta.is_dir():
-            continue
+        if carpeta.is_dir():
 
-        nombre = carpeta.name
+            nombre = carpeta.name
 
-        # Solo carpetas tipo 01_Ene, 02_Feb, etc
-        if len(nombre) >= 2 and nombre[:2].isdigit():
-            carpetas_mes.append(carpeta)
+            if (
+                len(nombre) >= 2
+                and nombre[:2].isdigit()
+            ):
+                meses.append(nombre)
 
-    if not carpetas_mes:
-        raise FileNotFoundError(
-            f"No existen carpetas de meses en:\n{ruta_anio}"
-        )
-
-    carpetas_mes.sort(
-        key=lambda x: int(x.name[:2])
+    meses.sort(
+        key=lambda x: int(x[:2])
     )
 
-    return carpetas_mes[-1]
+    return meses
 
 
-def buscar_pdfs(criterio: str):
+def obtener_ruta_periodo(
+    anio,
+    periodo
+):
 
-    ruta = obtener_ruta_periodo()
+    return (
+        Path(RUTA_BASE)
+        / anio
+        / periodo
+    )
+
+
+def buscar_pdfs(
+    criterio,
+    anio,
+    periodo
+):
+
+    ruta = obtener_ruta_periodo(
+        anio,
+        periodo
+    )
 
     print("\nCarpeta encontrada:")
     print(ruta)
 
     if not ruta.exists():
+
         raise FileNotFoundError(
             f"No existe la ruta:\n{ruta}"
         )
@@ -69,10 +92,9 @@ def buscar_pdfs(criterio: str):
 
         nombre = archivo.stem.upper()
 
-        # Solo archivos que TERMINAN exactamente
-        # con -criterio
-
-        if nombre.endswith(f"-{criterio}".upper()):
+        if nombre.endswith(
+            f"-{criterio}".upper()
+        ):
             pdfs.append(archivo)
 
     return sorted(pdfs)

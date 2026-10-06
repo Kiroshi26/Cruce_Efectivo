@@ -1,19 +1,111 @@
-from procesos.lector_carpetas import buscar_pdfs
+from procesos.lector_carpetas import (
+    buscar_pdfs,
+    obtener_anios_disponibles,
+    obtener_meses_disponibles
+)
+
 from procesos.extractor_pdf import leer_pdf
 from procesos.exportador_excel import exportar_excel
+from datetime import datetime
+
+MESES_CARPETA = {
+    1: "01_ENE",
+    2: "02_FEB",
+    3: "03_MAR",
+    4: "04_ABR",
+    5: "05_MAY",
+    6: "06_JUN",
+    7: "07_JUL",
+    8: "08_AGO",
+    9: "09_SEP",
+    10: "10_OCT",
+    11: "11_NOV",
+    12: "12_DIC",
+}
+
+def seleccionar_anio():
+
+    anios = obtener_anios_disponibles()
+
+    print("\nAños disponibles:\n")
+
+    for i, anio in enumerate(
+        anios,
+        start=1
+    ):
+        print(f"{i}. {anio}")
+
+    ultimo = len(anios)
+
+    opcion = input(
+        f"\nSeleccione año "
+        f"[Enter = {anios[-1]}]: "
+    ).strip()
+
+    if not opcion:
+        return anios[-1]
+
+    return anios[int(opcion) - 1]
 
 
-def ejecutar():
+def seleccionar_mes(anio):
 
-    criterio = input(
+    meses = obtener_meses_disponibles(
+        anio
+    )
+
+    print("\nMeses disponibles:\n")
+
+    for i, mes in enumerate(
+        meses,
+        start=1
+    ):
+        print(f"{i}. {mes}")
+
+        opcion = input(
+        f"\nSeleccione período "
+        f"[Enter = {meses[-1]}]: "
+    ).strip()
+
+    if not opcion:
+        return meses[-1]
+
+    return meses[int(opcion) - 1]
+
+
+def ejecutar(
+    criterio=None,
+    anio=None,
+    periodo=None,
+    reportar_evento=None
+):
+
+    if criterio is None:
+
+     criterio = input(
         "\nIngrese criterio: "
     ).strip()
 
     if not criterio:
-        print("Debe ingresar un criterio.")
-        return
 
-    pdfs = buscar_pdfs(criterio)
+     print(
+        "Debe ingresar un criterio."
+    )
+
+     return
+ 
+    
+    if not anio:
+      anio = seleccionar_anio()
+
+    if not periodo:
+      periodo = seleccionar_mes(anio)
+
+    pdfs = buscar_pdfs(
+        criterio,
+        anio,
+        periodo
+    )
 
     print("\nPDF encontrados:")
     print("-" * 80)
@@ -22,7 +114,9 @@ def ejecutar():
         print(pdf.name)
 
     print("-" * 80)
-    print(f"Total encontrados: {len(pdfs)}")
+    print(
+        f"Total encontrados: {len(pdfs)}"
+    )
 
     if not pdfs:
         return
@@ -37,16 +131,31 @@ def ejecutar():
 
         registros.append(
             {
-                "Cuenta": resultado["cuenta"],
-                "Saldo Extracto": resultado["saldo"],
+                "Cuenta": str(
+                    resultado["cuenta"]
+                ),
+                "Saldo Extracto": float(
+                    resultado["saldo"]
+                ),
                 "Archivo": pdf.name
             }
         )
 
-        print(f"Archivo : {pdf.name}")
-        print(f"Cuenta  : {resultado['cuenta']}")
-        print(f"Saldo   : {resultado['saldo']}")
-        print("-" * 80)  
+        print(
+            f"Archivo : {pdf.name}"
+        )
+
+        print(
+            f"Cuenta  : "
+            f"{resultado['cuenta']}"
+        )
+
+        print(
+            f"Saldo   : "
+            f"{resultado['saldo']}"
+        )
+
+        print("-" * 80)
 
     archivo = exportar_excel(
         registros,
