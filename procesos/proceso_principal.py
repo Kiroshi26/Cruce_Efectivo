@@ -4,6 +4,10 @@ from procesos.lector_carpetas import (
     obtener_meses_disponibles
 )
 
+from procesos.cuentas_bancarias import (
+    leer_archivo_ctasbanc
+)
+
 from procesos.extractor_pdf import leer_pdf
 from procesos.exportador_excel import exportar_excel
 from datetime import datetime
@@ -77,6 +81,7 @@ def ejecutar(
     criterio=None,
     anio=None,
     periodo=None,
+    archivo_ctasbanc=None,
     reportar_evento=None
 ):
 
@@ -100,6 +105,16 @@ def ejecutar(
 
     if not periodo:
       periodo = seleccionar_mes(anio)
+      
+      diccionario_cuentas = {}
+
+    if archivo_ctasbanc:
+
+      diccionario_cuentas = (
+        leer_archivo_ctasbanc(
+            archivo_ctasbanc
+        )
+    )
 
     pdfs = buscar_pdfs(
         criterio,
@@ -129,17 +144,27 @@ def ejecutar(
 
         resultado = leer_pdf(pdf)
 
-        registros.append(
-            {
-                "Cuenta": str(
-                    resultado["cuenta"]
-                ),
-                "Saldo Extracto": float(
-                    resultado["saldo"]
-                ),
-                "Archivo": pdf.name
-            }
+        cuenta = str(
+            resultado["cuenta"]
+        ).strip()
+
+        tipo_cuenta = (
+            diccionario_cuentas.get(
+                cuenta,
+                ""
+           )
         )
+
+        registros.append(
+    {
+        "Cuenta": cuenta,
+        "Tipo Cuenta": tipo_cuenta,
+        "Saldo Extracto": float(
+            resultado["saldo"]
+        ),
+        "Archivo": pdf.name
+    }
+)
 
         print(
             f"Archivo : {pdf.name}"
@@ -160,7 +185,7 @@ def ejecutar(
     archivo = exportar_excel(
         registros,
         criterio
-    )
+        )
 
     print("\n" + "=" * 80)
     print("ARCHIVO GENERADO")
