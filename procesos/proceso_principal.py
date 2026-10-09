@@ -115,6 +115,11 @@ def ejecutar(
             archivo_ctasbanc
         )
     )
+      
+      print(
+      "\n[CTASBANC] Cuentas cargadas:",
+       len(diccionario_cuentas)
+    )
 
     pdfs = buscar_pdfs(
         criterio,
@@ -144,15 +149,36 @@ def ejecutar(
 
         resultado = leer_pdf(pdf)
 
+    try:
         cuenta = str(
-            resultado["cuenta"]
+        int(float(resultado["cuenta"]))
         ).strip()
+        
+    except Exception:
+        cuenta = str(
+        resultado["cuenta"]
+        ).strip()
+
+        print(
+            "[BUSCANDO]",
+            repr(cuenta)
+        )
 
         tipo_cuenta = (
             diccionario_cuentas.get(
                 cuenta,
                 ""
-           )
+            )
+        )
+        
+        print(
+            "ENCONTRADO:",
+            repr(tipo_cuenta)
+        )
+
+        print(
+            "[RESULTADO]",
+            tipo_cuenta
         )
 
         registros.append(

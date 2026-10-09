@@ -46,16 +46,31 @@ def construir_diccionario(df):
 
     for _, fila in df.iterrows():
 
-        cuenta = str(
-            fila[col_cuenta]
+     valor = fila[col_cuenta]
+
+    try:
+           cuenta = str(
+           int(float(valor))
+    ).strip()
+            
+            
+    except Exception:
+           cuenta = str(valor).strip() 
+
+    descripcion = str(
+        fila[col_descripcion]
         ).strip()
 
-        descripcion = str(
-            fila[col_descripcion]
-        ).strip()
+    if cuenta:
 
-        if cuenta:
-            resultado[cuenta] = descripcion
+     resultado[cuenta] = descripcion
+
+    print(
+        "[CTASBANC]",
+        cuenta,
+        "=>",
+        descripcion
+    )
 
     return resultado
 
