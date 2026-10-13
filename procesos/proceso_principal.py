@@ -106,20 +106,15 @@ def ejecutar(
     if not periodo:
       periodo = seleccionar_mes(anio)
       
-      diccionario_cuentas = {}
+    diccionario_cuentas = {}
 
     if archivo_ctasbanc:
 
-      diccionario_cuentas = (
-        leer_archivo_ctasbanc(
-            archivo_ctasbanc
+       diccionario_cuentas = (
+           leer_archivo_ctasbanc(
+               archivo_ctasbanc
+            )
         )
-    )
-      
-      print(
-      "\n[CTASBANC] Cuentas cargadas:",
-       len(diccionario_cuentas)
-    )
 
     pdfs = buscar_pdfs(
         criterio,
@@ -130,90 +125,77 @@ def ejecutar(
     print("\nPDF encontrados:")
     print("-" * 80)
 
-    for pdf in pdfs:
-        print(pdf.name)
-
-    print("-" * 80)
-    print(
-        f"Total encontrados: {len(pdfs)}"
-    )
-
-    if not pdfs:
-        return
-
-    print("\nResultados:\n")
-
     registros = []
 
     for pdf in pdfs:
 
         resultado = leer_pdf(pdf)
 
-    try:
-        cuenta = str(
-        int(float(resultado["cuenta"]))
+        try:
+
+         cuenta = str(
+            int(float(resultado["cuenta"]))
+        )
+
+        except Exception:
+ 
+         cuenta = str(
+            resultado["cuenta"]
         ).strip()
-        
-    except Exception:
-        cuenta = str(
-        resultado["cuenta"]
-        ).strip()
 
         print(
-            "[BUSCANDO]",
-            repr(cuenta)
+        "\n[CRUCE] CUENTA PDF:",
+        repr(cuenta)
         )
 
-        tipo_cuenta = (
-            diccionario_cuentas.get(
-                cuenta,
-                ""
-            )
-        )
-        
-        print(
-            "ENCONTRADO:",
-            repr(tipo_cuenta)
+        tipo_cuenta = diccionario_cuentas.get(
+        cuenta,
+        ""
         )
 
         print(
-            "[RESULTADO]",
-            tipo_cuenta
+        "[CRUCE] TIPO ENCONTRADO:",
+        repr(tipo_cuenta)
         )
 
         registros.append(
-    {
-        "Cuenta": cuenta,
-        "Tipo Cuenta": tipo_cuenta,
-        "Saldo Extracto": float(
-            resultado["saldo"]
-        ),
-        "Archivo": pdf.name
-    }
-)
-
-        print(
-            f"Archivo : {pdf.name}"
+        {
+            "Cuenta": cuenta,
+            "Tipo Cuenta": tipo_cuenta,
+            "Saldo Extracto": float(
+                resultado["saldo"]
+            ),
+            "Archivo": pdf.name
+        }
         )
 
         print(
-            f"Cuenta  : "
-            f"{resultado['cuenta']}"
+        f"Archivo : {pdf.name}"
         )
 
         print(
-            f"Saldo   : "
-            f"{resultado['saldo']}"
+        f"Cuenta  : {cuenta}"
+        )
+
+        print(
+        f"Saldo   : {resultado['saldo']}"
         )
 
         print("-" * 80)
 
+    print(
+    "\nTOTAL REGISTROS:",
+    len(registros)
+    )
+
     archivo = exportar_excel(
-        registros,
-        criterio
-        )
+     registros,
+     criterio
+     )
 
     print("\n" + "=" * 80)
     print("ARCHIVO GENERADO")
     print(archivo)
     print("=" * 80)
+
+    return archivo

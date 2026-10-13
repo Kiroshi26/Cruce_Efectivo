@@ -117,31 +117,38 @@ def exportar_excel(registros, criterio):
     # Formato de datos
     for fila in range(2, ws.max_row + 1):
 
-        # Cuenta
-        ws[f"A{fila}"].alignment = Alignment(
-            horizontal="left"
-        )
+       # Cuenta
+     ws[f"A{fila}"].alignment = Alignment(
+       horizontal="left"
+     )
 
-        # Saldo
-        ws[f"B{fila}"].number_format = "#,##0.00"
+    # Tipo Cuenta
+    ws[f"B{fila}"].alignment = Alignment(
+     horizontal="left"
+    )
 
-        ws[f"B{fila}"].alignment = Alignment(
-            horizontal="right"
-        )
+    # Saldo Extracto
+    ws[f"C{fila}"].number_format = "#,##0.00"
+    ws[f"C{fila}"].alignment = Alignment(
+      horizontal="right"
+    )
 
-        # Archivo
-        ws[f"C{fila}"].alignment = Alignment(
-            horizontal="right"
-        )
+    # Archivo
+    ws[f"D{fila}"].alignment = Alignment(
+      horizontal="left"
+    )
 
     # Autofiltro
     ws.auto_filter.ref = ws.dimensions
 
     # Anchos fijos
-    ws.column_dimensions["A"].width = 20
-    ws.column_dimensions["B"].width = 25
-    ws.column_dimensions["C"].width = 40
-
+    ws.column_dimensions["A"].width = 18   # Cuenta
+    ws.column_dimensions["B"].width = 40   # Tipo Cuenta
+    ws.column_dimensions["C"].width = 20   # Saldo Extracto
+    ws.column_dimensions["D"].width = 40  
+    
+    # Ocultar columna Archivo
+    ws.column_dimensions["D"].hidden = True
     # ==================================
     # HOJA CONTROL
     # ==================================

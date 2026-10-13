@@ -26,52 +26,52 @@ def validar_columnas(df):
 
 def construir_diccionario(df):
 
-    col_cuenta, col_descripcion = (
-        detectar_columnas(df)
-    )
+    columnas = {
+        str(col).strip().upper(): col
+        for col in df.columns
+    }
 
-    if not col_cuenta:
+    print("\nCOLUMNAS DISPONIBLES:")
+    print(columnas)
 
-        raise ValueError(
-            "No fue posible identificar la columna de cuentas."
-        )
+    col_cuenta = columnas["CUENTA CONTABLE"]
+    col_descripcion = columnas["DESCRIPCION"]
 
-    if not col_descripcion:
+    print("\nUSANDO COLUMNA CUENTA:")
+    print(col_cuenta)
 
-        raise ValueError(
-            "No fue posible identificar la columna de descripción."
-        )
+    print("\nUSANDO COLUMNA DESCRIPCION:")
+    print(col_descripcion)
 
     resultado = {}
 
     for _, fila in df.iterrows():
 
-     valor = fila[col_cuenta]
+        valor = fila[col_cuenta]
 
-    try:
+        try:
+
            cuenta = str(
            int(float(valor))
-    ).strip()
-            
-            
-    except Exception:
-           cuenta = str(valor).strip() 
+        )
 
-    descripcion = str(
+        except Exception:
+
+           cuenta = str(valor).strip()  
+
+        if (
+           not cuenta
+           or cuenta.lower() == "nan"    
+        ):
+        
+           continue
+        
+        descripcion = str(
         fila[col_descripcion]
         ).strip()
-
-    if cuenta:
-
-     resultado[cuenta] = descripcion
-
-    print(
-        "[CTASBANC]",
-        cuenta,
-        "=>",
-        descripcion
-    )
-
+        
+        resultado[cuenta] = descripcion
+          
     return resultado
 
 
