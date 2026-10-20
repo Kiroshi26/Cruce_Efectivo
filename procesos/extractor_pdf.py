@@ -18,11 +18,9 @@ def extraer_texto_pdf(ruta_pdf):
     return "\n".join(paginas)
 
 
-def extraer_cuenta_y_saldo(texto):
+def extraer_cuenta(texto):
 
-    lineas = texto.splitlines()
-
-    for linea in lineas:
+    for linea in texto.splitlines():
 
         if "Nuestro" not in linea:
             continue
@@ -32,34 +30,50 @@ def extraer_cuenta_y_saldo(texto):
             linea
         )
 
-        # Si no encontró cuenta, esta línea no sirve
-        if not cuenta_match:
-            continue
+        if cuenta_match:
 
-        cuenta = cuenta_match.group(1)
-
-        numeros = re.findall(
-            r"\d[\d,]*\.\d{2}",
-            linea
-        )
-
-        saldo = 0.0
-
-        if numeros:
-            saldo = float(
-                numeros[-1].replace(",", "")
+            return (
+                cuenta_match.group(1),
+                linea
             )
 
-        return {
-            "cuenta": cuenta,
-            "saldo": saldo,
-            "linea": linea
-        }
+    return "", ""
+
+
+def extraer_saldo_balance(texto):
+    """
+    Extrae el saldo desde:
+
+    Balance:
+    6,921,690.39 C
+
+    ignorando la naturaleza C/D.
+    """
+
+    patron = re.search(
+        r"Balance:\s*([\d,]+\.\d{2})",
+        texto,
+        flags=re.IGNORECASE
+    )
+
+    if not patron:
+        return 0.0
+
+    return float(
+        patron.group(1).replace(",", "")
+    )
+
+
+def extraer_cuenta_y_saldo(texto):
+
+    cuenta, linea = extraer_cuenta(texto)
+
+    saldo = extraer_saldo_balance(texto)
 
     return {
-        "cuenta": "",
-        "saldo": 0.0,
-        "linea": ""
+        "cuenta": cuenta,
+        "saldo": saldo,
+        "linea": linea
     }
 
 

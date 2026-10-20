@@ -12,7 +12,11 @@ RUTA_PRUEBAS = Path(
 )
 
 
-def exportar_excel(registros, criterio):
+def exportar_excel(
+    registros,
+    criterio,
+    periodo
+    ):
 
     RUTA_PRUEBAS.mkdir(
         parents=True,
@@ -21,7 +25,7 @@ def exportar_excel(registros, criterio):
 
     archivo_salida = (
         RUTA_PRUEBAS /
-        f"Cruce_Efectivo_{criterio}.xlsx"
+        f"Cruce_Efectivo_{criterio}_{periodo}.xlsx"
     )
 
     # -------------------------
@@ -117,25 +121,26 @@ def exportar_excel(registros, criterio):
     # Formato de datos
     for fila in range(2, ws.max_row + 1):
 
-       # Cuenta
+    # Cuenta
      ws[f"A{fila}"].alignment = Alignment(
-       horizontal="left"
-     )
+        horizontal="left"
+    )
 
     # Tipo Cuenta
-    ws[f"B{fila}"].alignment = Alignment(
-     horizontal="left"
+     ws[f"B{fila}"].alignment = Alignment(
+        horizontal="left"
     )
 
     # Saldo Extracto
-    ws[f"C{fila}"].number_format = "#,##0.00"
-    ws[f"C{fila}"].alignment = Alignment(
-      horizontal="right"
+     ws[f"C{fila}"].number_format = "#,##0.00"
+
+     ws[f"C{fila}"].alignment = Alignment(
+        horizontal="right"
     )
 
     # Archivo
-    ws[f"D{fila}"].alignment = Alignment(
-      horizontal="left"
+     ws[f"D{fila}"].alignment = Alignment(
+        horizontal="right"
     )
 
     # Autofiltro
@@ -144,11 +149,9 @@ def exportar_excel(registros, criterio):
     # Anchos fijos
     ws.column_dimensions["A"].width = 18   # Cuenta
     ws.column_dimensions["B"].width = 40   # Tipo Cuenta
-    ws.column_dimensions["C"].width = 20   # Saldo Extracto
-    ws.column_dimensions["D"].width = 40  
+    ws.column_dimensions["C"].width = 30   # Saldo Extracto
+    ws.column_dimensions["D"].width = 50 
     
-    # Ocultar columna Archivo
-    ws.column_dimensions["D"].hidden = True
     # ==================================
     # HOJA CONTROL
     # ==================================

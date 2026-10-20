@@ -190,7 +190,8 @@ def ejecutar(
 
     archivo = exportar_excel(
      registros,
-     criterio
+     criterio,
+     periodo
      )
 
     print("\n" + "=" * 80)
