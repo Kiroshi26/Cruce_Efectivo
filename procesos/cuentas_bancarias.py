@@ -10,11 +10,17 @@ def validar_columnas(df):
 
     faltantes = []
 
-    if "DESCRIPCION" not in columnas:
-        faltantes.append("DESCRIPCION")
+    requeridas = [
+        "CUENTA CONTABLE",
+        "DESCRIPCION",
+        "NOMBRE ENTIDAD",
+        "MONEDA"
+    ]
 
-    if "CUENTA CONTABLE" not in columnas:
-        faltantes.append("CUENTA CONTABLE")
+    for columna in requeridas:
+
+        if columna not in columnas:
+            faltantes.append(columna)
 
     if faltantes:
 
@@ -36,12 +42,8 @@ def construir_diccionario(df):
 
     col_cuenta = columnas["CUENTA CONTABLE"]
     col_descripcion = columnas["DESCRIPCION"]
-
-    print("\nUSANDO COLUMNA CUENTA:")
-    print(col_cuenta)
-
-    print("\nUSANDO COLUMNA DESCRIPCION:")
-    print(col_descripcion)
+    col_entidad = columnas["NOMBRE ENTIDAD"]
+    col_moneda = columnas["MONEDA"]
 
     resultado = {}
 
@@ -51,27 +53,38 @@ def construir_diccionario(df):
 
         try:
 
-           cuenta = str(
-           int(float(valor))
-        )
+            cuenta = str(
+                int(float(valor))
+            )
 
         except Exception:
 
-           cuenta = str(valor).strip()  
+            cuenta = str(valor).strip()
 
         if (
-           not cuenta
-           or cuenta.lower() == "nan"    
+            not cuenta
+            or cuenta.lower() == "nan"
         ):
-        
-           continue
-        
+            continue
+
         descripcion = str(
-        fila[col_descripcion]
+            fila[col_descripcion]
         ).strip()
-        
-        resultado[cuenta] = descripcion
-          
+
+        nombre_entidad = str(
+            fila[col_entidad]
+        ).strip()
+
+        moneda = str(
+            fila[col_moneda]
+        ).strip()
+
+        resultado[cuenta] = {
+            "tipo_cuenta": descripcion,
+            "nombre_entidad": nombre_entidad,
+            "moneda": moneda
+        }
+
     return resultado
 
 
@@ -102,7 +115,7 @@ def leer_archivo_ctasbanc(ruta_archivo):
     if fila_encabezado is None:
 
         raise ValueError(
-            "No se encontraron las columnas DESCRIPCION y CUENTA CONTABLE en el archivo."
+            "No se encontraron las columnas DESCRIPCION y CUENTA CONTABLE."
         )
 
     df = pd.read_excel(
@@ -114,6 +127,7 @@ def leer_archivo_ctasbanc(ruta_archivo):
     validar_columnas(df)
 
     return construir_diccionario(df)
+
 
 def detectar_columnas(df):
 
@@ -129,7 +143,6 @@ def detectar_columnas(df):
             .str.strip()
         )
 
-        # columna cuenta
         cantidad_cuentas = (
             serie.str.fullmatch(r"\d{8,20}")
             .fillna(False)
@@ -150,4 +163,7 @@ def detectar_columnas(df):
         ):
             columna_descripcion = columna
 
-    return columna_cuenta, columna_descripcion
+    return (
+        columna_cuenta,
+        columna_descripcion
+    )

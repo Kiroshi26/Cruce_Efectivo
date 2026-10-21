@@ -16,12 +16,21 @@ def exportar_excel(
     registros,
     criterio,
     periodo
-    ):
+):
 
     RUTA_PRUEBAS.mkdir(
         parents=True,
         exist_ok=True
     )
+
+    # Eliminar versiones anteriores
+    for archivo_existente in RUTA_PRUEBAS.glob(
+        f"Cruce_Efectivo_{criterio}_*.xlsx"
+    ):
+        try:
+            archivo_existente.unlink()
+        except Exception:
+            pass
 
     archivo_salida = (
         RUTA_PRUEBAS /
@@ -51,11 +60,13 @@ def exportar_excel(
         {
             "Campo": [
                 "Filtro",
+                "Periodo",
                 "PDF encontrados",
                 "PDF procesados"
             ],
             "Valor": [
                 criterio,
+                periodo,
                 len(registros),
                 len(registros)
             ]
@@ -118,40 +129,51 @@ def exportar_excel(
                 horizontal="center"
             )
 
-    # Formato de datos
+    # Datos
     for fila in range(2, ws.max_row + 1):
 
-    # Cuenta
-     ws[f"A{fila}"].alignment = Alignment(
-        horizontal="left"
-    )
+        # Cuenta
+        ws[f"A{fila}"].alignment = Alignment(
+            horizontal="left"
+        )
 
-    # Tipo Cuenta
-     ws[f"B{fila}"].alignment = Alignment(
-        horizontal="left"
-    )
+        # Tipo Cuenta
+        ws[f"B{fila}"].alignment = Alignment(
+            horizontal="left"
+        )
 
-    # Saldo Extracto
-     ws[f"C{fila}"].number_format = "#,##0.00"
+        # Nombre Entidad
+        ws[f"C{fila}"].alignment = Alignment(
+            horizontal="left"
+        )
 
-     ws[f"C{fila}"].alignment = Alignment(
-        horizontal="right"
-    )
+        # Moneda
+        ws[f"D{fila}"].alignment = Alignment(
+            horizontal="center"
+        )
 
-    # Archivo
-     ws[f"D{fila}"].alignment = Alignment(
-        horizontal="right"
-    )
+        # Saldo Extracto
+        ws[f"E{fila}"].number_format = "#,##0.00"
 
-    # Autofiltro
+        ws[f"E{fila}"].alignment = Alignment(
+            horizontal="right"
+        )
+
+        # Archivo
+        ws[f"F{fila}"].alignment = Alignment(
+            horizontal="right"
+        )
+
     ws.auto_filter.ref = ws.dimensions
 
-    # Anchos fijos
+    # Anchos
     ws.column_dimensions["A"].width = 18   # Cuenta
-    ws.column_dimensions["B"].width = 40   # Tipo Cuenta
-    ws.column_dimensions["C"].width = 30   # Saldo Extracto
-    ws.column_dimensions["D"].width = 50 
-    
+    ws.column_dimensions["B"].width = 35   # Tipo Cuenta
+    ws.column_dimensions["C"].width = 45   # Nombre Entidad
+    ws.column_dimensions["D"].width = 12   # Moneda
+    ws.column_dimensions["E"].width = 30   # Saldo Extracto
+    ws.column_dimensions["F"].width = 50   # Archivo
+
     # ==================================
     # HOJA CONTROL
     # ==================================

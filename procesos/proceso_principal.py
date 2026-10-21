@@ -10,7 +10,9 @@ from procesos.cuentas_bancarias import (
 
 from procesos.extractor_pdf import leer_pdf
 from procesos.exportador_excel import exportar_excel
+
 from datetime import datetime
+
 
 MESES_CARPETA = {
     1: "01_ENE",
@@ -27,6 +29,7 @@ MESES_CARPETA = {
     12: "12_DIC",
 }
 
+
 def seleccionar_anio():
 
     anios = obtener_anios_disponibles()
@@ -39,11 +42,8 @@ def seleccionar_anio():
     ):
         print(f"{i}. {anio}")
 
-    ultimo = len(anios)
-
     opcion = input(
-        f"\nSeleccione año "
-        f"[Enter = {anios[-1]}]: "
+        f"\nSeleccione año [Enter = {anios[-1]}]: "
     ).strip()
 
     if not opcion:
@@ -54,9 +54,7 @@ def seleccionar_anio():
 
 def seleccionar_mes(anio):
 
-    meses = obtener_meses_disponibles(
-        anio
-    )
+    meses = obtener_meses_disponibles(anio)
 
     print("\nMeses disponibles:\n")
 
@@ -66,9 +64,8 @@ def seleccionar_mes(anio):
     ):
         print(f"{i}. {mes}")
 
-        opcion = input(
-        f"\nSeleccione período "
-        f"[Enter = {meses[-1]}]: "
+    opcion = input(
+        f"\nSeleccione período [Enter = {meses[-1]}]: "
     ).strip()
 
     if not opcion:
@@ -87,32 +84,31 @@ def ejecutar(
 
     if criterio is None:
 
-     criterio = input(
-        "\nIngrese criterio: "
-    ).strip()
+        criterio = input(
+            "\nIngrese criterio: "
+        ).strip()
 
     if not criterio:
 
-     print(
-        "Debe ingresar un criterio."
-    )
+        print(
+            "Debe ingresar un criterio."
+        )
 
-     return
- 
-    
+        return
+
     if not anio:
-      anio = seleccionar_anio()
+        anio = seleccionar_anio()
 
     if not periodo:
-      periodo = seleccionar_mes(anio)
-      
+        periodo = seleccionar_mes(anio)
+
     diccionario_cuentas = {}
 
     if archivo_ctasbanc:
 
-       diccionario_cuentas = (
-           leer_archivo_ctasbanc(
-               archivo_ctasbanc
+        diccionario_cuentas = (
+            leer_archivo_ctasbanc(
+                archivo_ctasbanc
             )
         )
 
@@ -133,66 +129,91 @@ def ejecutar(
 
         try:
 
-         cuenta = str(
-            int(float(resultado["cuenta"]))
-        )
+            cuenta = str(
+                int(float(resultado["cuenta"]))
+            )
 
         except Exception:
- 
-         cuenta = str(
-            resultado["cuenta"]
-        ).strip()
 
-        print(
-        "\n[CRUCE] CUENTA PDF:",
-        repr(cuenta)
+            cuenta = str(
+                resultado["cuenta"]
+            ).strip()
+
+        datos_cta = diccionario_cuentas.get(
+            cuenta,
+            {}
         )
 
-        tipo_cuenta = diccionario_cuentas.get(
-        cuenta,
-        ""
+        tipo_cuenta = ""
+
+        nombre_entidad = ""
+
+        moneda = ""
+
+        if isinstance(datos_cta, dict):
+
+            tipo_cuenta = datos_cta.get(
+                "tipo_cuenta",
+                ""
+            )
+
+            nombre_entidad = datos_cta.get(
+                "nombre_entidad",
+                ""
+            )
+
+            moneda = datos_cta.get(
+                "moneda",
+                ""
+            )
+
+        print(
+            "\n[CRUCE] CUENTA PDF:",
+            repr(cuenta)
         )
 
         print(
-        "[CRUCE] TIPO ENCONTRADO:",
-        repr(tipo_cuenta)
+            "[CRUCE] TIPO ENCONTRADO:",
+            repr(tipo_cuenta)
         )
 
         registros.append(
-        {
-            "Cuenta": cuenta,
-            "Tipo Cuenta": tipo_cuenta,
-            "Saldo Extracto": float(
-                resultado["saldo"]
-            ),
-            "Archivo": pdf.name
-        }
+            {
+                "Cuenta": cuenta,
+                "Tipo Cuenta": tipo_cuenta,
+                "Nombre Entidad": nombre_entidad,
+                "Moneda": moneda,
+                "Saldo Extracto": float(
+                    resultado["saldo"]
+                ),
+                "Archivo": pdf.name
+            }
         )
 
         print(
-        f"Archivo : {pdf.name}"
+            f"Archivo : {pdf.name}"
         )
 
         print(
-        f"Cuenta  : {cuenta}"
+            f"Cuenta  : {cuenta}"
         )
 
         print(
-        f"Saldo   : {resultado['saldo']}"
+            f"Saldo   : {resultado['saldo']}"
         )
 
         print("-" * 80)
 
     print(
-    "\nTOTAL REGISTROS:",
-    len(registros)
+        "\nTOTAL REGISTROS:",
+        len(registros)
     )
 
     archivo = exportar_excel(
-     registros,
-     criterio,
-     periodo
-     )
+        registros,
+        criterio,
+        periodo
+    )
 
     print("\n" + "=" * 80)
     print("ARCHIVO GENERADO")
