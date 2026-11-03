@@ -7,8 +7,8 @@ from openpyxl.styles import Font
 from openpyxl.styles import PatternFill
 
 
-RUTA_PRUEBAS = Path(
-    r"C:\Proyectos\Pruebas_Plataforma\Efectivo"
+RUTA_SALIDA = Path(
+    r"\\sbbogscl0\vfinanci\gerencia contabilidad impuestos clientes\Gerencia contabilidad e impuestos clientes\RAZONABILIDAD New\PRUEBAS TRANSVERSALES NEW\Prueba_Efectivo"
 )
 
 
@@ -18,13 +18,13 @@ def exportar_excel(
     periodo
 ):
 
-    RUTA_PRUEBAS.mkdir(
+    RUTA_SALIDA.mkdir(
         parents=True,
         exist_ok=True
     )
 
     # Eliminar versiones anteriores
-    for archivo_existente in RUTA_PRUEBAS.glob(
+    for archivo_existente in RUTA_SALIDA.glob(
         f"Cruce_Efectivo_{criterio}_*.xlsx"
     ):
         try:
@@ -33,7 +33,7 @@ def exportar_excel(
             pass
 
     archivo_salida = (
-        RUTA_PRUEBAS /
+        RUTA_SALIDA /
         f"Cruce_Efectivo_{criterio}_{periodo}.xlsx"
     )
 
